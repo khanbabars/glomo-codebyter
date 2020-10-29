@@ -1,13 +1,6 @@
-const https = require('https'); 
+const https = require('https');
 
-const ENDPOINTS = 'https://coderbyte.com/api/challenges/json/json-cleaning'
-
-
- 
-// example to fetch codebyter api 
-function getJson(API) {
-
-https.get(API, (resp ) => {
+https.get('https://coderbyte.com/api/challenges/json/json-cleaning', (resp) => {
   
 
   let data = '';
@@ -19,15 +12,37 @@ https.get(API, (resp ) => {
   resp.on('end', () => {
     console.log(JSON.parse(data));
     let body = JSON.parse(data)
- return body;
- //filter(body)
+
+function filter(obj){
+Object.keys(obj).forEach((key)=> {
+if(typeof obj[key]==='object' && !obj[key].length){
+  Object.keys(obj[key]).forEach(innerKey=>{
+  const match = new RegExp(/^-| |N\/A$/,'g').test(obj[key][innerKey])  || obj[key][innerKey]===""
+  if(match){
+    delete obj[key][innerKey]
+  }
+  })
+}
+else if(typeof obj[key]==='string'){
+  const match = new RegExp(/^-| |N\/A$/,'g').test(obj[key]) || innerKey===""
+  if(match){
+    delete obj[key]
+  }
+}
+else if(obj[key] && obj[key].length){
+  obj[key].forEach((innerKey, index)=>{  
+  const match = new RegExp(/^-| |N\/A$/,'g').test(innerKey)  || innerKey===""
+  if(match){
+     obj[key].splice(index, 1)
+  }
+  })
+}
+})
+console.log(obj)
+}
+ filter(body)
   });
 
 }).on("error", (err) => {
   console.log("Error: " + err.message);
-})
-}
-getJson(ENDPOINTS);
-
-
-//test api by calling node api.js
+});
